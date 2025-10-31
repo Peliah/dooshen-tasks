@@ -1,50 +1,134 @@
-# Welcome to your Expo app 👋
+# Dooshen Tasks Mobile App ✅
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, cross-platform task management application built with React Native (Expo) and powered by a Convex real-time backend. This project showcases a robust mobile architecture, dynamic theming, and a polished user interface.
 
-## Get started
+## Features
 
-1. Install dependencies
+-   **Cross-Platform:** Single codebase for iOS, Android, and Web, thanks to Expo.
+-   **Real-time Backend:** Utilizes Convex for seamless, real-time data synchronization.
+-   **Dynamic Theming:** Full support for light, dark, and system-default themes, with persistence across sessions.
+-   **Modern UI/UX:** Features like parallax scroll views, collapsible sections, and haptic feedback for an enhanced user experience.
+-   **File-Based Routing:** Simplified navigation and screen management using Expo Router.
+-   **Native Capabilities:** Leverages native components like SF Symbols on iOS for a platform-consistent look and feel.
 
-   ```bash
-   npm install
-   ```
+## Technologies Used
 
-2. Start the app
+| Technology         | Description                              |
+| ------------------ | ---------------------------------------- |
+| **React Native**   | Core framework for building native apps  |
+| **Expo**           | Toolchain for universal React applications |
+| **TypeScript**     | Static typing for robust code            |
+| **Convex**         | Backend-as-a-Service for real-time data  |
+| **Expo Router**    | File-based routing for navigation        |
+| **Reanimated**     | Library for high-performance animations  |
+| **AsyncStorage**   | Local data persistence                   |
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+Follow these instructions to get a local copy of the project up and running for development and testing purposes.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Prerequisites
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+-   Node.js (LTS version recommended)
+-   npm or yarn
+-   Expo Go app on your mobile device (for testing) or an emulator/simulator setup.
 
-## Get a fresh project
+### Installation
 
-When you're ready, run:
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/your-username/dooshen-tasks.git
+    cd dooshen-tasks
+    ```
 
-```bash
-npm run reset-project
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Set Up Environment Variables**
+    Create a `.env.local` file in the root of the project and add your Convex deployment URL.
+
+    ```env
+    # .env.local
+    EXPO_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+    ```
+
+### Usage
+
+1.  **Start the Development Server**
+    This command starts the Metro bundler.
+    ```bash
+    npm start
+    ```
+
+2.  **Run on a device or emulator:**
+    -   **iOS:** Press `i` in the terminal to launch in the iOS Simulator.
+    -   **Android:** Press `a` in the terminal to launch in the Android Emulator.
+    -   **Web:** Press `w` in the terminal to launch in your web browser.
+
+## API Integration
+
+The application's backend is managed through Convex. The core functions are defined in the `convex/` directory.
+
+### `convex/tasks.ts`
+
+This file handles data operations related to tasks.
+
+#### `GET /tasks`
+Retrieves a list of all tasks from the database. This is a query function accessible from the client.
+
+**Request**:
+No payload is required. The function is called via the Convex client library.
+```typescript
+// Example client-side usage
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+const tasks = useQuery(api.tasks.get);
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+**Response**:
+An array of task objects. Since no schema is defined (`convex/schema.ts` is empty), the structure is dynamic. A potential structure would be:
+```json
+[
+  {
+    "_id": "_id_string",
+    "_creationTime": 1672531200000,
+    "text": "Complete the project documentation",
+    "isCompleted": false
+  },
+  {
+    "_id": "another_id_string",
+    "_creationTime": 1672534800000,
+    "text": "Deploy to production",
+    "isCompleted": false
+  }
+]
+```
 
-## Learn more
+## Contributing
 
-To learn more about developing your project with Expo, look at the following resources:
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1.  🍴 Fork the Project
+2.  🌿 Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  ✨ Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  🚀 Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  🎉 Open a Pull Request
 
-## Join the community
+## Author
 
-Join our community of developers creating universal apps.
+**[Your Name]**
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+-   LinkedIn: `[Your LinkedIn Profile]`
+-   Twitter: `@[Your Twitter Handle]`
+
+---
+
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![React Native](https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Expo](https://img.shields.io/badge/expo-1B1F23?style=for-the-badge&logo=expo&logoColor=white)
+![Convex](https://img.shields.io/badge/Convex-000000?style=for-the-badge&logo=convex&logoColor=white)
+
+[![Readme was generated by Dokugen](https://img.shields.io/badge/Readme%20was%20generated%20by-Dokugen-brightgreen)](https://www.npmjs.com/package/dokugen)
