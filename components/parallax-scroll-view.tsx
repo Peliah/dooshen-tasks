@@ -23,7 +23,7 @@ export default function ParallaxScrollView({
   headerImage,
   overlayContent,
 }: Props) {
-  const backgroundColor = useThemeColor({}, 'background');
+  const backgroundColor = useThemeColor({}, 'backgroundSecondary');
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
   const headerAnimatedStyle = useAnimatedStyle(() => {
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
   header: {
     height: HEADER_HEIGHT,
     overflow: 'hidden',
+    
   },
   overlay: {
     position: 'absolute',
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   content: {
+    backgroundColor: 'transparent',
     flex: 1,
     padding: 32,
     gap: 16,

@@ -1,19 +1,23 @@
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { Image } from 'expo-image';
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const { isDark } = useTheme();
   const [todo, setTodo] = useState('');
   const createTask = useMutation(api.tasks.create);
+  const updateTask = useMutation(api.tasks.update);
+  const todos = useQuery(api.tasks.get) ?? [];
   
   const handleCreateTodo = async () => {
     if (todo.trim()) {
@@ -23,6 +27,32 @@ export default function HomeScreen() {
       });
       setTodo('');
     }
+  };
+
+  const renderTodoItem = ({ item }: { item: any }) => {
+    const handleToggleTodo = async (id: Id<'tasks'>) => {
+      await updateTask({
+        id,
+        title: item.title,
+        completed: !item.completed,
+      });
+    };
+    return (
+      <View style={styles.flatListInputContainer}>
+        <TouchableOpacity onPress={() => handleToggleTodo(item.id)}>
+          <Ionicons name={item.completed ? "radio-button-on" : "radio-button-off"} size={24} color="#E3E4F1" />
+        </TouchableOpacity>
+        <ThemedText 
+          type="default" 
+          style={[
+            styles.todoItemText,
+            item.completed && styles.todoItemTextCompleted
+          ]}
+        >
+          {item.title}
+        </ThemedText>
+      </View>
+    );
   };
   
   return (
@@ -44,7 +74,6 @@ export default function HomeScreen() {
             <Image source={require('@/assets/imgs/TODO.svg')} style={styles.logo} />
             <ThemeToggleButton />
           </View>
-          {/* Input Container */}
           <ThemedView style={styles.inputContainer}>
             <TouchableOpacity
               onPress={handleCreateTodo}
@@ -59,12 +88,15 @@ export default function HomeScreen() {
             />
           </ThemedView>
           {/* Todo List */}
-          {/* <ThemedView style={styles.todoListContainer}>
+          <ThemedView style={styles.todoListContainer}>
             <FlatList
               data={todos}
               renderItem={renderTodoItem}
+              scrollEnabled={false}
+              nestedScrollEnabled={true}
+              keyExtractor={(item) => item._id}
             />
-          </ThemedView> */}
+          </ThemedView>
         </View>
       }>
     </ParallaxScrollView>
@@ -84,16 +116,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: 24,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
   backgroundImage: {
     width: '100%',
     height: '100%',
     zIndex: -1,
   },
   container: {
+    // backgroundColor: isDark ? '#171823' : '#E3E4F1',
+    backgroundColor: 'transparent',
     paddingTop: 16,
     paddingHorizontal: 24,
   },
@@ -106,7 +136,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
+  flatListInputContainer:{
+    gap: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   input: {
     padding: 8,
+  },
+  todoListContainer: {
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  todoItemText: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  todoItemTextCompleted: {
+    textDecorationLine: 'line-through',
+    color: '#4D5067',
+
   },
 });

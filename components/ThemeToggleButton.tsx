@@ -1,5 +1,4 @@
 import { useTheme } from '@/context/ThemeContext';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
@@ -17,7 +16,6 @@ export function ThemeToggleButton({
     onPress
 }: ThemeToggleButtonProps) {
     const { isDark, toggleTheme } = useTheme();
-    const iconColor = useThemeColor({}, 'icon');
 
     const handlePress = () => {
         toggleTheme();
