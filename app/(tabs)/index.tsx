@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { TodoItem } from '@/components/TodoItem';
@@ -11,11 +12,28 @@ import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/convex/_generated/api';
 import { Ionicons } from '@expo/vector-icons';
 
+type Filter = 'All' | 'Active' | 'Completed';
+
 export default function HomeScreen() {
   const { isDark } = useTheme();
   const [todo, setTodo] = useState('');
+  const [activeFilter, setActiveFilter] = useState<Filter>('All');
   const createTask = useMutation(api.tasks.create);
+  const clearCompleted = useMutation(api.tasks.clearCompleted);
   const todos = useQuery(api.tasks.get) ?? [];
+  
+  const incompleteTodos = todos.filter((task) => !task.completed);
+  const itemsLeft = incompleteTodos.length;
+  
+  const filteredTodos = todos.filter((task) => {
+    if (activeFilter === 'Active') {
+      return !task.completed;
+    }
+    if (activeFilter === 'Completed') {
+      return task.completed;
+    }
+    return true;
+  });
   
   const handleCreateTodo = async () => {
     if (todo.trim()) {
@@ -27,6 +45,14 @@ export default function HomeScreen() {
     }
   };
 
+  const handleClearCompleted = async () => {
+    await clearCompleted();
+  };
+
+  const handleFilterChange = (filter: Filter) => {
+    setActiveFilter(filter);
+  };
+
   const renderTodoItem = ({ item }: { item: any }) => {
     return (
       <TodoItem 
@@ -34,6 +60,19 @@ export default function HomeScreen() {
         title={item.title}
         completed={item.completed}
       />
+    );
+  };
+
+  const renderFooter = () => {
+    return (
+      <View style={styles.footer}>
+        <ThemedText style={styles.itemsLeftText}>
+          {itemsLeft} {itemsLeft === 1 ? 'item' : 'items'} left
+        </ThemedText>
+        <TouchableOpacity onPress={handleClearCompleted}>
+          <ThemedText style={styles.clearButtonText}>Clear Completed</ThemedText>
+        </TouchableOpacity>
+      </View>
     );
   };
   
@@ -72,12 +111,49 @@ export default function HomeScreen() {
           {/* Todo List */}
           <ThemedView style={styles.todoListContainer}>
             <FlatList
-              data={todos}
+              data={filteredTodos}
               renderItem={renderTodoItem}
               scrollEnabled={false}
               nestedScrollEnabled={true}
               keyExtractor={(item) => item._id}
+              ListFooterComponent={renderFooter}
             />
+          </ThemedView>
+          
+          <ThemedView style={styles.filtersContainer}>
+            <TouchableOpacity 
+              style={styles.filterButton}
+              onPress={() => handleFilterChange('All')}
+            >
+              <ThemedText style={[
+                styles.filterButtonText,
+                activeFilter === 'All' && styles.filterButtonTextActive
+              ]}>
+                All
+              </ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.filterButton}
+              onPress={() => handleFilterChange('Active')}
+            >
+              <ThemedText style={[
+                styles.filterButtonText,
+                activeFilter === 'Active' && styles.filterButtonTextActive
+              ]}>
+                Active
+              </ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.filterButton}
+              onPress={() => handleFilterChange('Completed')}
+            >
+              <ThemedText style={[
+                styles.filterButtonText,
+                activeFilter === 'Completed' && styles.filterButtonTextActive
+              ]}>
+                Completed
+              </ThemedText>
+            </TouchableOpacity>
           </ThemedView>
         </View>
       }>
@@ -124,5 +200,41 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     // paddingHorizontal: 20,
     // paddingVertical: 14,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  itemsLeftText: {
+    fontSize: 14,
+    color: '#9495A5',
+  },
+  clearButtonText: {
+    fontSize: 14,
+    color: '#9495A5',
+  },
+  filtersContainer: {
+    borderRadius: 8,
+    marginVertical: 24,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  filterButton: {
+    padding: 10,
+    borderRadius: 8,
+  },
+  filterButtonText: {
+    fontSize: 14,
+    color: '#9495A5',
+    fontWeight: '500',
+  },
+  filterButtonTextActive: {
+    color: '#3A7CFD',
   },
 });
