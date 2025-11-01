@@ -4,19 +4,17 @@ import { useState } from 'react';
 import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
+import { TodoItem } from '@/components/TodoItem';
 import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const { isDark } = useTheme();
   const [todo, setTodo] = useState('');
   const createTask = useMutation(api.tasks.create);
-  const updateTask = useMutation(api.tasks.update);
   const todos = useQuery(api.tasks.get) ?? [];
   
   const handleCreateTodo = async () => {
@@ -30,28 +28,12 @@ export default function HomeScreen() {
   };
 
   const renderTodoItem = ({ item }: { item: any }) => {
-    const handleToggleTodo = async (id: Id<'tasks'>) => {
-      await updateTask({
-        id,
-        title: item.title,
-        completed: !item.completed,
-      });
-    };
     return (
-      <View style={styles.flatListInputContainer}>
-        <TouchableOpacity onPress={() => handleToggleTodo(item.id)}>
-          <Ionicons name={item.completed ? "radio-button-on" : "radio-button-off"} size={24} color="#E3E4F1" />
-        </TouchableOpacity>
-        <ThemedText 
-          type="default" 
-          style={[
-            styles.todoItemText,
-            item.completed && styles.todoItemTextCompleted
-          ]}
-        >
-          {item.title}
-        </ThemedText>
-      </View>
+      <TodoItem 
+        id={item._id}
+        title={item.title}
+        completed={item.completed}
+      />
     );
   };
   
@@ -122,7 +104,6 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   container: {
-    // backgroundColor: isDark ? '#171823' : '#E3E4F1',
     backgroundColor: 'transparent',
     paddingTop: 16,
     paddingHorizontal: 24,
@@ -136,26 +117,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
-  flatListInputContainer:{
-    gap: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   input: {
     padding: 8,
   },
   todoListContainer: {
     borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  todoItemText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  todoItemTextCompleted: {
-    textDecorationLine: 'line-through',
-    color: '#4D5067',
-
+    // paddingHorizontal: 20,
+    // paddingVertical: 14,
   },
 });
