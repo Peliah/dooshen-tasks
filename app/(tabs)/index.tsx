@@ -224,7 +224,7 @@ export default function HomeScreen() {
           </ThemedView>
           
           <View style={styles.dragDropTextContainer}>
-            <ThemedText style={styles.dragDropText}>
+            <ThemedText style={styles.dragDropText} type="default">
               Drag and drop to reorder list
             </ThemedText>
           </View>
@@ -304,9 +304,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   filterButtonText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#9495A5',
-    fontWeight: '500',
+    fontWeight: '700',
   },
   filterButtonTextActive: {
     color: '#3A7CFD',
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   dragDropText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#9495A5',
     textAlign: 'center',
   },
