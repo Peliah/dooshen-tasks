@@ -1,16 +1,29 @@
+import { useMutation } from 'convex/react';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { useTheme } from '@/context/ThemeContext';
-import { Link } from 'expo-router';
+import { api } from '@/convex/_generated/api';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const { isDark } = useTheme();
+  const [todo, setTodo] = useState('');
+  const createTask = useMutation(api.tasks.create);
+  
+  const handleCreateTodo = async () => {
+    if (todo.trim()) {
+      await createTask({
+        title: todo.trim(),
+        completed: false,
+      });
+      setTodo('');
+    }
+  };
   
   return (
     <ParallaxScrollView
@@ -24,74 +37,52 @@ export default function HomeScreen() {
           contentFit="cover"
           transition={150}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <ThemeToggleButton />
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
+      }
+      overlayContent={
+        <View style={styles.container}>
+          <View style={styles.titleContainer}>
+            <Image source={require('@/assets/imgs/TODO.svg')} style={styles.logo} />
+            <ThemeToggleButton />
+          </View>
+          {/* Input Container */}
+          <ThemedView style={styles.inputContainer}>
+            <TouchableOpacity
+              onPress={handleCreateTodo}
+            >
+              <Ionicons name="radio-button-off" size={24} color="#E3E4F1" />
+            </TouchableOpacity>
+            <TextInput
+              placeholder="Create a todo..."
+              value={todo}
+              onChangeText={setTodo}
+              style={styles.input}
             />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+          </ThemedView>
+          {/* Todo List */}
+          {/* <ThemedView style={styles.todoListContainer}>
+            <FlatList
+              data={todos}
+              renderItem={renderTodoItem}
+            />
+          </ThemedView> */}
+        </View>
+      }>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  logo: {
+    width: 110,
+    height: 20,
+    alignSelf: 'center',
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    justifyContent: 'space-between',
+    paddingBottom: 24,
   },
   stepContainer: {
     gap: 8,
@@ -100,5 +91,22 @@ const styles = StyleSheet.create({
   backgroundImage: {
     width: '100%',
     height: '100%',
+    zIndex: -1,
+  },
+  container: {
+    paddingTop: 16,
+    paddingHorizontal: 24,
+  },
+  inputContainer: {
+    gap: 8,
+    marginVertical: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  input: {
+    padding: 8,
   },
 });

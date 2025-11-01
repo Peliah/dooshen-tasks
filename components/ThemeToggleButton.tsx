@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 
+
 interface ThemeToggleButtonProps {
     size?: number;
     style?: ViewStyle;
@@ -33,7 +34,7 @@ export function ThemeToggleButton({
             <Ionicons
                 name={isDark ? 'sunny' : 'moon'}
                 size={size}
-                color={iconColor}
+                color={'white'}
             />
         </TouchableOpacity>
     );
