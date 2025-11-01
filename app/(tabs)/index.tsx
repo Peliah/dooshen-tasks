@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from 'convex/react';
 import { Image } from 'expo-image';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -24,11 +24,27 @@ export default function HomeScreen() {
   const createTask = useMutation(api.tasks.create);
   const clearCompleted = useMutation(api.tasks.clearCompleted);
   const todos = useQuery(api.tasks.get) ?? [];
+  const previousTodosRef = useRef<string>('');
   
   const incompleteTodos = todos.filter((task) => !task.completed);
   const itemsLeft = incompleteTodos.length;
   
+  // Create a stable comparison key from todos
+  const todosKey = JSON.stringify(todos.map(t => ({
+    id: t._id,
+    title: t.title,
+    completed: t.completed,
+    description: t.description,
+  })));
+  
   useEffect(() => {
+    // Skip if todos haven't actually changed
+    if (previousTodosRef.current === todosKey) {
+      return;
+    }
+    
+    previousTodosRef.current = todosKey;
+    
     if (todos.length === 0) {
       setLocalTodosOrder([]);
       return;
@@ -75,7 +91,7 @@ export default function HomeScreen() {
       setLocalTodosOrder(updatedOrder);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todos]);
+  }, [todosKey]);
   
   // Filter todos based on active filter
   const filteredTodos = localTodosOrder.length > 0 
