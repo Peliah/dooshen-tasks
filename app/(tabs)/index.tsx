@@ -155,6 +155,12 @@ export default function HomeScreen() {
               </ThemedText>
             </TouchableOpacity>
           </ThemedView>
+          
+          <View style={styles.dragDropTextContainer}>
+            <ThemedText style={styles.dragDropText}>
+              Drag and drop to reorder list
+            </ThemedText>
+          </View>
         </View>
       }>
     </ParallaxScrollView>
@@ -180,6 +186,7 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   container: {
+    flex: 1,
     backgroundColor: 'transparent',
     paddingTop: 16,
     paddingHorizontal: 24,
@@ -236,5 +243,15 @@ const styles = StyleSheet.create({
   },
   filterButtonTextActive: {
     color: '#3A7CFD',
+  },
+  dragDropTextContainer: {
+    alignItems: 'center',
+    paddingTop: 40,
+    paddingBottom: 20,
+  },
+  dragDropText: {
+    fontSize: 14,
+    color: '#9495A5',
+    textAlign: 'center',
   },
 });
