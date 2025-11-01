@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from 'convex/react';
 import { Image } from 'expo-image';
-import { useState } from 'react';
-import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
@@ -18,6 +20,7 @@ export default function HomeScreen() {
   const { isDark } = useTheme();
   const [todo, setTodo] = useState('');
   const [activeFilter, setActiveFilter] = useState<Filter>('All');
+  const [localTodosOrder, setLocalTodosOrder] = useState<any[]>([]);
   const createTask = useMutation(api.tasks.create);
   const clearCompleted = useMutation(api.tasks.clearCompleted);
   const todos = useQuery(api.tasks.get) ?? [];
@@ -25,15 +28,64 @@ export default function HomeScreen() {
   const incompleteTodos = todos.filter((task) => !task.completed);
   const itemsLeft = incompleteTodos.length;
   
-  const filteredTodos = todos.filter((task) => {
-    if (activeFilter === 'Active') {
-      return !task.completed;
+  useEffect(() => {
+    if (todos.length === 0) {
+      setLocalTodosOrder([]);
+      return;
     }
-    if (activeFilter === 'Completed') {
-      return task.completed;
+    
+    if (localTodosOrder.length === 0) {
+      setLocalTodosOrder(todos);
+      return;
     }
-    return true;
-  });
+    
+    const convexMap = new Map(todos.map(item => [item._id, item]));
+    
+    const localIds = new Set(localTodosOrder.map(item => item._id));
+    const convexIds = new Set(todos.map(item => item._id));
+    
+    const hasNewItems = [...convexIds].some(id => !localIds.has(id));
+    const hasRemovedItems = [...localIds].some(id => !convexIds.has(id));
+    
+    if (hasNewItems || hasRemovedItems) {
+      const preservedOrder = localTodosOrder
+        .filter(item => convexIds.has(item._id))
+        .map(item => convexMap.get(item._id)!);
+      
+      const newItems = todos.filter(item => !localIds.has(item._id));
+      
+      setLocalTodosOrder([...preservedOrder, ...newItems]);
+    } else {
+      // Only update existing items with latest data from Convex, preserve order
+      const updatedOrder = localTodosOrder.map(item => {
+        const updated = convexMap.get(item._id);
+        return updated || item;
+      });
+      setLocalTodosOrder(updatedOrder);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todos.length, todos.map(t => t._id).join(',')]);
+  
+  // Filter todos based on active filter
+  const filteredTodos = localTodosOrder.length > 0 
+    ? localTodosOrder.filter((task) => {
+        if (activeFilter === 'Active') {
+          return !task.completed;
+        }
+        if (activeFilter === 'Completed') {
+          return task.completed;
+        }
+        return true;
+      })
+    : todos.filter((task) => {
+        if (activeFilter === 'Active') {
+          return !task.completed;
+        }
+        if (activeFilter === 'Completed') {
+          return task.completed;
+        }
+        return true;
+      });
   
   const handleCreateTodo = async () => {
     if (todo.trim()) {
@@ -53,13 +105,24 @@ export default function HomeScreen() {
     setActiveFilter(filter);
   };
 
-  const renderTodoItem = ({ item }: { item: any }) => {
+  const handleDragEnd = useCallback(({ data }: { data: any[] }) => {
+
+    setLocalTodosOrder(data);
+  }, []);
+
+  const renderTodoItem = ({ item, drag, isActive }: RenderItemParams<any>) => {
+    const canDrag = true;
+    
     return (
-      <TodoItem 
-        id={item._id}
-        title={item.title}
-        completed={item.completed}
-      />
+      <ScaleDecorator>
+        <TodoItem 
+          id={item._id}
+          title={item.title}
+          completed={item.completed}
+          drag={canDrag ? drag : undefined}
+          isActive={isActive}
+        />
+      </ScaleDecorator>
     );
   };
 
@@ -108,16 +171,20 @@ export default function HomeScreen() {
               style={styles.input}
             />
           </ThemedView>
-          {/* Todo List */}
+          {/* Drag and drop todo list */}
+          {/* This is still buggy on android device */}
           <ThemedView style={styles.todoListContainer}>
-            <FlatList
-              data={filteredTodos}
-              renderItem={renderTodoItem}
-              scrollEnabled={false}
-              nestedScrollEnabled={true}
-              keyExtractor={(item) => item._id}
-              ListFooterComponent={renderFooter}
-            />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <DraggableFlatList
+                data={filteredTodos}
+                onDragEnd={handleDragEnd}
+                keyExtractor={(item) => item._id}
+                renderItem={renderTodoItem}
+                scrollEnabled={false}
+                ListFooterComponent={renderFooter}
+                activationDistance={10}
+              />
+            </GestureHandlerRootView>
           </ThemedView>
           
           <ThemedView style={styles.filtersContainer}>

@@ -11,9 +11,11 @@ interface TodoItemProps {
   id: Id<'tasks'>;
   title: string;
   completed: boolean;
+  drag?: () => void;
+  isActive?: boolean;
 }
 
-export function TodoItem({ id, title, completed }: TodoItemProps) {
+export function TodoItem({ id, title, completed, drag, isActive }: TodoItemProps) {
   const { isDark } = useTheme();
   const updateTask = useMutation(api.tasks.update);
   const deleteTask = useMutation(api.tasks.deleteTask);
@@ -31,31 +33,46 @@ export function TodoItem({ id, title, completed }: TodoItemProps) {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={handleToggleTodo}>
+    <TouchableOpacity
+      style={[styles.container, isActive && styles.containerActive]}
+      onLongPress={drag}
+      delayLongPress={drag ? 200 : undefined}
+      activeOpacity={0.8}
+      disabled={!drag || isActive}
+    >
+      <TouchableOpacity 
+        onPress={handleToggleTodo}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
         <Ionicons 
           name={completed ? "radio-button-on" : "radio-button-off"} 
           size={24} 
           color={isDark ? '#393A4B' : '#E3E4F1'} 
         />
       </TouchableOpacity>
-      <ThemedText 
-        type="default" 
-        style={[
-          styles.todoItemText,
-          completed && styles.todoItemTextCompleted
-        ]}
+      <View style={styles.textContainer}>
+        <ThemedText 
+          type="default" 
+          style={[
+            styles.todoItemText,
+            completed && styles.todoItemTextCompleted
+          ]}
+        >
+          {title}
+        </ThemedText>
+      </View>
+      <TouchableOpacity 
+        onPress={handleDeleteTodo} 
+        style={styles.deleteButton}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        {title}
-      </ThemedText>
-      <TouchableOpacity onPress={handleDeleteTodo} style={styles.deleteButton}>
         <Ionicons 
           name="close" 
           size={18} 
           color="#494C6B" 
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -69,10 +86,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E3E4F1',
   },
+  containerActive: {
+    opacity: 0.8,
+  },
+  textContainer: {
+    flex: 1,
+  },
   todoItemText: {
     fontSize: 16,
     lineHeight: 24,
-    flex: 1,
   },
   todoItemTextCompleted: {
     textDecorationLine: 'line-through',
