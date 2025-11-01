@@ -47,6 +47,17 @@ export default function HomeScreen() {
     const hasNewItems = [...convexIds].some(id => !localIds.has(id));
     const hasRemovedItems = [...localIds].some(id => !convexIds.has(id));
     
+    // Check if any existing item properties have changed
+    const hasPropertyChanges = localTodosOrder.some(localItem => {
+      const convexItem = convexMap.get(localItem._id);
+      if (!convexItem) return false;
+      return (
+        convexItem.title !== localItem.title ||
+        convexItem.completed !== localItem.completed ||
+        convexItem.description !== localItem.description
+      );
+    });
+    
     if (hasNewItems || hasRemovedItems) {
       const preservedOrder = localTodosOrder
         .filter(item => convexIds.has(item._id))
@@ -55,8 +66,8 @@ export default function HomeScreen() {
       const newItems = todos.filter(item => !localIds.has(item._id));
       
       setLocalTodosOrder([...preservedOrder, ...newItems]);
-    } else {
-      // Only update existing items with latest data from Convex, preserve order
+    } else if (hasPropertyChanges) {
+      // Update existing items with latest data from Convex, preserve order
       const updatedOrder = localTodosOrder.map(item => {
         const updated = convexMap.get(item._id);
         return updated || item;
@@ -64,7 +75,7 @@ export default function HomeScreen() {
       setLocalTodosOrder(updatedOrder);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todos.length, todos.map(t => t._id).join(',')]);
+  }, [todos]);
   
   // Filter todos based on active filter
   const filteredTodos = localTodosOrder.length > 0 
@@ -269,6 +280,8 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 8,
+    fontFamily: 'Josefin Sans',
+    fontSize: 16,
   },
   todoListContainer: {
     borderRadius: 8,
