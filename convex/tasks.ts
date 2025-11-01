@@ -49,6 +49,16 @@ export const update = mutation({
   },
 });
 
+// The delete mutation function deletes a specific task by id from the database.
+export const deleteTask = mutation({
+  args: {
+    id: v.id("tasks"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
 // The clearCompleted mutation function deletes all completed tasks from the database.
 export const clearCompleted = mutation({
   args: {},

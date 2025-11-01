@@ -16,6 +16,7 @@ interface TodoItemProps {
 export function TodoItem({ id, title, completed }: TodoItemProps) {
   const { isDark } = useTheme();
   const updateTask = useMutation(api.tasks.update);
+  const deleteTask = useMutation(api.tasks.deleteTask);
 
   const handleToggleTodo = async () => {
     await updateTask({
@@ -23,6 +24,10 @@ export function TodoItem({ id, title, completed }: TodoItemProps) {
       title,
       completed: !completed,
     });
+  };
+
+  const handleDeleteTodo = async () => {
+    await deleteTask({ id });
   };
 
   return (
@@ -43,6 +48,13 @@ export function TodoItem({ id, title, completed }: TodoItemProps) {
       >
         {title}
       </ThemedText>
+      <TouchableOpacity onPress={handleDeleteTodo} style={styles.deleteButton}>
+        <Ionicons 
+          name="close" 
+          size={18} 
+          color="#494C6B" 
+        />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -60,10 +72,15 @@ const styles = StyleSheet.create({
   todoItemText: {
     fontSize: 16,
     lineHeight: 24,
+    flex: 1,
   },
   todoItemTextCompleted: {
     textDecorationLine: 'line-through',
     color: '#4D5067',
+  },
+  deleteButton: {
+    marginLeft: 'auto',
+    padding: 4,
   },
 });
 
