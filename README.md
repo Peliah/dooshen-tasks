@@ -1,134 +1,177 @@
-# Dooshen Tasks Mobile App ✅
+# dooshen-tasks mobile
 
-A modern, cross-platform task management application built with React Native (Expo) and powered by a Convex real-time backend. This project showcases a robust mobile architecture, dynamic theming, and a polished user interface.
+## Overview
+This project is the mobile app for a task management application, built with React Native and utilizing the Convex real-time database platform. It provides a set of functions for creating, reading, updating, and deleting tasks.
 
 ## Features
-
--   **Cross-Platform:** Single codebase for iOS, Android, and Web, thanks to Expo.
--   **Real-time Backend:** Utilizes Convex for seamless, real-time data synchronization.
--   **Dynamic Theming:** Full support for light, dark, and system-default themes, with persistence across sessions.
--   **Modern UI/UX:** Features like parallax scroll views, collapsible sections, and haptic feedback for an enhanced user experience.
--   **File-Based Routing:** Simplified navigation and screen management using Expo Router.
--   **Native Capabilities:** Leverages native components like SF Symbols on iOS for a platform-consistent look and feel.
-
-## Technologies Used
-
-| Technology         | Description                              |
-| ------------------ | ---------------------------------------- |
-| **React Native**   | Core framework for building native apps  |
-| **Expo**           | Toolchain for universal React applications |
-| **TypeScript**     | Static typing for robust code            |
-| **Convex**         | Backend-as-a-Service for real-time data  |
-| **Expo Router**    | File-based routing for navigation        |
-| **Reanimated**     | Library for high-performance animations  |
-| **AsyncStorage**   | Local data persistence                   |
+- [Convex](https://www.convex.dev/): Serves as the real-time database and backend execution environment.
+- [TypeScript](https://www.typescriptlang.org/): Ensures type safety and improves code quality across the backend functions.
 
 ## Getting Started
-
-Follow these instructions to get a local copy of the project up and running for development and testing purposes.
-
-### Prerequisites
-
--   Node.js (LTS version recommended)
--   npm or yarn
--   Expo Go app on your mobile device (for testing) or an emulator/simulator setup.
-
 ### Installation
-
-1.  **Clone the Repository**
+1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/dooshen-tasks.git
+    git clone https://github.com/Peliah/dooshen-tasks.git
     cd dooshen-tasks
     ```
 
-2.  **Install Dependencies**
+2.  **Install dependencies:**
     ```bash
     npm install
     ```
 
-3.  **Set Up Environment Variables**
-    Create a `.env.local` file in the root of the project and add your Convex deployment URL.
-
-    ```env
-    # .env.local
-    EXPO_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
-    ```
-
-### Usage
-
-1.  **Start the Development Server**
-    This command starts the Metro bundler.
+3.  **Set up Convex:**
+    Install the Convex CLI if you haven't already:
     ```bash
-    npm start
+    npm install -g convex
+    ```
+    Log in to your Convex account:
+    ```bash
+    npx convex login
     ```
 
-2.  **Run on a device or emulator:**
-    -   **iOS:** Press `i` in the terminal to launch in the iOS Simulator.
-    -   **Android:** Press `a` in the terminal to launch in the Android Emulator.
-    -   **Web:** Press `w` in the terminal to launch in your web browser.
+4.  **Run the development server:**
+    This command starts the local development server for both the frontend and pushes backend changes to Convex.
+    ```bash
+    npx convex dev
+    ```
 
-## API Integration
+### Environment Variables
+Create a `.env.local` file in the root directory and add the following variables. These are typically generated for you when running `npx convex dev` for the first time.
 
-The application's backend is managed through Convex. The core functions are defined in the `convex/` directory.
+-   `CONVEX_DEPLOYMENT`: The deployment identifier for your Convex project.
+    `CONVEX_DEPLOYMENT=dev:your-deployment-name`
+-   `EXPO_PUBLIC_CONVEX_URL`: The public URL for your Convex backend.
+    `EXPO_PUBLIC_CONVEX_URL=https://your-project-name.convex.cloud`
 
-### `convex/tasks.ts`
+## API Documentation
+### Base URL
+The base URL is determined by your Convex project deployment. Functions are called via the Convex client, not standard REST endpoints. The following documentation represents the available backend functions.
 
-This file handles data operations related to tasks.
-
-#### `GET /tasks`
-Retrieves a list of all tasks from the database. This is a query function accessible from the client.
-
+### Endpoints
+#### QUERY tasks.get
+**Description**: Fetches all tasks from the database.
 **Request**:
-No payload is required. The function is called via the Convex client library.
-```typescript
-// Example client-side usage
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-
-const tasks = useQuery(api.tasks.get);
-```
+No payload required.
 
 **Response**:
-An array of task objects. Since no schema is defined (`convex/schema.ts` is empty), the structure is dynamic. A potential structure would be:
 ```json
 [
   {
-    "_id": "_id_string",
-    "_creationTime": 1672531200000,
-    "text": "Complete the project documentation",
-    "isCompleted": false
+    "_id": "j4p8wz7q9h6n2m5k",
+    "_creationTime": 1678886400000,
+    "title": "Finish the report",
+    "description": "Complete the Q1 financial report.",
+    "completed": false
   },
   {
-    "_id": "another_id_string",
-    "_creationTime": 1672534800000,
-    "text": "Deploy to production",
-    "isCompleted": false
+    "_id": "k5q9x0r8y1f7d3c2",
+    "_creationTime": 1678886500000,
+    "title": "Buy groceries",
+    "description": null,
+    "completed": true
   }
 ]
 ```
 
-## Contributing
+**Errors**:
+- None specified; returns an empty array if no tasks exist.
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+#### MUTATION tasks.create
+**Description**: Creates a new task.
+**Request**:
+```json
+{
+  "title": "string",
+  "description": "string (optional)",
+  "completed": "boolean"
+}
+```
+*Example:*
+```json
+{
+  "title": "Schedule team meeting",
+  "completed": false
+}
+```
 
-1.  🍴 Fork the Project
-2.  🌿 Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  ✨ Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  🚀 Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  🎉 Open a Pull Request
+**Response**:
+The ID of the newly created task.
+```json
+"j4p8wz7q9h6n2m5k"
+```
 
-## Author
+**Errors**:
+- 400 Bad Request: If `title` or `completed` are missing or have the wrong type.
 
-**[Your Name]**
+#### MUTATION tasks.update
+**Description**: Updates an existing task by its ID.
+**Request**:
+```json
+{
+  "id": "Id<'tasks'>",
+  "completed": "boolean (optional)",
+  "title": "string (optional)",
+  "description": "string (optional)"
+}
+```
+*Example:*
+```json
+{
+  "id": "j4p8wz7q9h6n2m5k",
+  "completed": true
+}
+```
 
--   LinkedIn: `[Your LinkedIn Profile]`
--   Twitter: `@[Your Twitter Handle]`
+**Response**:
+The updated task object.
+```json
+{
+  "_id": "j4p8wz7q9h6n2m5k",
+  "_creationTime": 1678886400000,
+  "title": "Finish the report",
+  "description": "Complete the Q1 financial report.",
+  "completed": true
+}
+```
 
----
+**Errors**:
+- 400 Bad Request: If no updatable fields are provided.
+- 404 Not Found: If the task `id` does not exist.
 
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![React Native](https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![Expo](https://img.shields.io/badge/expo-1B1F23?style=for-the-badge&logo=expo&logoColor=white)
-![Convex](https://img.shields.io/badge/Convex-000000?style=for-the-badge&logo=convex&logoColor=white)
+#### MUTATION tasks.deleteTask
+**Description**: Deletes a specific task by its ID.
+**Request**:
+```json
+{
+  "id": "Id<'tasks'>"
+}
+```
+*Example:*
+```json
+{
+  "id": "j4p8wz7q9h6n2m5k"
+}
+```
+
+**Response**:
+A successful deletion does not return a body.
+
+**Errors**:
+- 404 Not Found: If the task `id` does not exist.
+
+#### MUTATION tasks.clearCompleted
+**Description**: Deletes all tasks that are marked as completed.
+**Request**:
+No payload required.
+
+**Response**:
+The number of tasks that were deleted.
+```json
+2
+```
+
+**Errors**:
+- None specified; returns `0` if no completed tasks were found.
 
 [![Readme was generated by Dokugen](https://img.shields.io/badge/Readme%20was%20generated%20by-Dokugen-brightgreen)](https://www.npmjs.com/package/dokugen)
