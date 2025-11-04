@@ -10,6 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { TodoItem } from '@/components/TodoItem';
+import { Colors } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/convex/_generated/api';
 import { Ionicons } from '@expo/vector-icons';
@@ -195,7 +196,13 @@ export default function HomeScreen() {
               placeholder="Create a todo..."
               value={todo}
               onChangeText={setTodo}
-              style={styles.input}
+              onSubmitEditing={handleCreateTodo}
+              returnKeyType="done"
+              style={[
+                styles.input,
+                { color: isDark ? Colors.dark.text : Colors.light.text }
+              ]}
+              placeholderTextColor={isDark ? '#C8CBE7' : '#494C6B'}
             />
           </ThemedView>
           {/* Drag and drop todo list */}
@@ -298,6 +305,7 @@ const styles = StyleSheet.create({
     padding: 8,
     fontFamily: 'Josefin Sans',
     fontSize: 16,
+    flex: 1,
   },
   todoListContainer: {
     borderRadius: 8,
