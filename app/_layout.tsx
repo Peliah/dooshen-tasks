@@ -5,7 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 // Keep the splash screen visible while we load fonts
@@ -18,14 +18,16 @@ export const unstable_settings = {
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
 if (!convexUrl) {
-  console.warn('EXPO_PUBLIC_CONVEX_URL is not set. Convex features will not work.');
+  console.error('EXPO_PUBLIC_CONVEX_URL is not set. Convex features will not work.');
+  console.error('Please set EXPO_PUBLIC_CONVEX_URL in your .env file.');
 }
 
-const convex = convexUrl 
-  ? new ConvexReactClient(convexUrl, {
-      unsavedChangesWarning: false,
-    })
-  : null;
+// Always create a Convex client, even if URL is missing
+// This prevents the "ConvexProvider missing" error
+// The client will fail gracefully if the URL is invalid
+const convex = new ConvexReactClient(convexUrl || 'https://placeholder.convex.cloud', {
+  unsavedChangesWarning: false,
+});
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -54,18 +56,6 @@ export default function RootLayout() {
 function ThemeProviderWrapper() {
   const { isDark } = useTheme();
   
-  if (!convex) {
-    return (
-      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <ConvexProvider client={convex}>
