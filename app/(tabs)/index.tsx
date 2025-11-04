@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from 'convex/react';
 import { Image } from 'expo-image';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -268,6 +268,15 @@ export default function HomeScreen() {
   );
 }
 
+// Helper to get font family for bold weights
+// Android now uses separate font file for bold
+const getBoldFontFamily = () => {
+  if (Platform.OS === 'android') {
+    return 'Josefin Sans Bold';
+  }
+  return 'Josefin Sans';
+};
+
 const styles = StyleSheet.create({
   logo: {
     width: 110,
@@ -343,7 +352,9 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: 16,
     color: '#9495A5',
-    fontWeight: '700',
+    fontFamily: getBoldFontFamily(),
+    // iOS can synthesize weights, Android cannot
+    ...(Platform.OS === 'ios' && { fontWeight: '700' }),
   },
   filterButtonTextActive: {
     color: '#3A7CFD',

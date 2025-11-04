@@ -1,4 +1,4 @@
-import { StyleSheet, Text, type TextProps } from 'react-native';
+import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
 
@@ -33,6 +33,28 @@ export function ThemedText({
   );
 }
 
+// Platform-specific font family names
+// NOTE: On Android, fontWeight doesn't work with single TTF files.
+// You need separate font files for each weight and load them with different names.
+// For now, using regular weight on Android. When you add Bold/SemiBold fonts:
+// 1. Load them in app/_layout.tsx as 'Josefin Sans Bold' and 'Josefin Sans SemiBold'
+// 2. Update the android values below to use those font family names
+
+const getFontFamily = (weight: 'regular' | 'semibold' | 'bold') => {
+  if (Platform.OS === 'android') {
+    // Android requires separate font files - now using specific font families
+    if (weight === 'semibold') {
+      return 'Josefin Sans SemiBold';
+    }
+    if (weight === 'bold') {
+      return 'Josefin Sans Bold';
+    }
+    return 'Josefin Sans';
+  }
+  // iOS can synthesize weights from a single font file
+  return 'Josefin Sans';
+};
+
 const styles = StyleSheet.create({
   default: {
     fontSize: 16,
@@ -42,19 +64,22 @@ const styles = StyleSheet.create({
   defaultSemiBold: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '600',
-    fontFamily: 'Josefin Sans',
+    fontFamily: getFontFamily('semibold'),
+    // iOS can synthesize weights, Android cannot
+    ...(Platform.OS === 'ios' && { fontWeight: '600' }),
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: getFontFamily('bold'),
     lineHeight: 32,
-    fontFamily: 'Josefin Sans',
+    // iOS can synthesize weights, Android cannot
+    ...(Platform.OS === 'ios' && { fontWeight: 'bold' }),
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Josefin Sans',
+    fontFamily: getFontFamily('bold'),
+    // iOS can synthesize weights, Android cannot
+    ...(Platform.OS === 'ios' && { fontWeight: 'bold' }),
   },
   link: {
     lineHeight: 30,

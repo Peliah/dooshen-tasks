@@ -26,14 +26,16 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/josefin_sans.ttf"
-          ]
-        }
-      ],
+        [
+          "expo-font",
+          {
+            "fonts": [
+              "./assets/fonts/josefin-sans.regular.ttf",
+              "./assets/fonts/josefin-sans.semibold.ttf",
+              "./assets/fonts/josefin-sans.bold.ttf"
+            ]
+          }
+        ],
       "expo-router",
       [
         "expo-splash-screen",

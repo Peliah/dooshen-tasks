@@ -15,13 +15,23 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
-  unsavedChangesWarning: false,
-});
+const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
+
+if (!convexUrl) {
+  console.warn('EXPO_PUBLIC_CONVEX_URL is not set. Convex features will not work.');
+}
+
+const convex = convexUrl 
+  ? new ConvexReactClient(convexUrl, {
+      unsavedChangesWarning: false,
+    })
+  : null;
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    'Josefin Sans': require('@/assets/fonts/josefin_sans.ttf'),
+    'Josefin Sans': require('@/assets/fonts/josefin-sans.regular.ttf'),
+    'Josefin Sans SemiBold': require('@/assets/fonts/josefin-sans.semibold.ttf'),
+    'Josefin Sans Bold': require('@/assets/fonts/josefin-sans.bold.ttf'),
   });
 
   useEffect(() => {
@@ -43,6 +53,19 @@ export default function RootLayout() {
 
 function ThemeProviderWrapper() {
   const { isDark } = useTheme();
+  
+  if (!convex) {
+    return (
+      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <ConvexProvider client={convex}>
