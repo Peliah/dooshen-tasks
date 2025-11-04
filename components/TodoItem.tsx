@@ -6,6 +6,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 
 interface TodoItemProps {
   id: Id<'tasks'>;
@@ -44,11 +45,20 @@ export function TodoItem({ id, title, completed, drag, isActive }: TodoItemProps
         onPress={handleToggleTodo}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons 
-          name={completed ? "radio-button-on" : "radio-button-off"} 
-          size={24} 
-          color={isDark ? '#393A4B' : '#E3E4F1'} 
-        />
+        {
+          completed ? (
+            <Image
+              source={ require('@/assets/imgs/tick.svg')}
+              style={styles.radioButton}
+            />
+          ) : (
+            <Ionicons 
+              name="radio-button-off" 
+              size={24} 
+              color={isDark ? '#393A4B' : '#E3E4F1'} 
+            />
+          )
+        }
       </TouchableOpacity>
       <View style={styles.textContainer}>
         <ThemedText 
@@ -103,6 +113,10 @@ const styles = StyleSheet.create({
   deleteButton: {
     marginLeft: 'auto',
     padding: 4,
+  },
+  radioButton: {
+    width: 24,
+    height: 24,
   },
 });
 
